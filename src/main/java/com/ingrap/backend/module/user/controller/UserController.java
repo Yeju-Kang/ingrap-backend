@@ -42,10 +42,9 @@ public class UserController {
 
         String token = userService.loginUser(email, password);
 
-        // ✅ JWT를 HttpOnly 쿠키로 설정
         Cookie cookie = new Cookie("jwt_token", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true); // HTTPS 환경에서만 전송 (개발 중에는 false 설정 가능)
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 동안 유지
 
