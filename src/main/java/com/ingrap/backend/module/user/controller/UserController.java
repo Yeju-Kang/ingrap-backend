@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Map;
 
@@ -34,9 +36,21 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String loginUser(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginRequest, HttpServletResponse response) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
-        return userService.loginUser(email, password);
+
+        String token = userService.loginUser(email, password);
+
+        // ✅ JWT를 HttpOnly 쿠키로 설정
+        Cookie cookie = new Cookie("jwt_token", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // HTTPS 환경에서만 전송 (개발 중에는 false 설정 가능)
+        cookie.setPath("/");
+        cookie.setMaxAge(7 * 24 * 60 * 60); // 7일 동안 유지
+
+        response.addCookie(cookie);
+        return ResponseEntity.ok("로그인 성공");
     }
+
 }
