@@ -1,0 +1,16 @@
+package com.ingrap.backend.module.userfurniture.exception;
+
+import com.ingrap.backend.module.common.domain.FurnitureType;
+import com.ingrap.backend.module.common.domain.FurnitureStatus;
+import lombok.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class UserFurnitureRequest {
+    private String name;
+    private FurnitureType type;
+    private FurnitureStatus status;
+}
