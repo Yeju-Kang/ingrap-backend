@@ -52,4 +52,16 @@ public class UserController {
         return ResponseEntity.ok("로그인 성공");
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(HttpServletResponse response) {
+        Cookie cookie = new Cookie("jwt_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 쿠키 삭제
+
+        response.addCookie(cookie);
+        return ResponseEntity.ok("로그아웃 성공");
+    }
+
 }

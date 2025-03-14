@@ -44,7 +44,9 @@ public class UserRoomService {
         return toResponse(room);
     }
 
-    public UserRoomResponse updateRoom(Long id, UserRoomRequest request) {
+    public UserRoomResponse updateRoom(Long id, User
+
+            RoomRequest request) {
         UserRoom room = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
 
