@@ -40,7 +40,8 @@ public class JwtUtil {
     @PostConstruct
     protected void init() {
         logger.info("🚀 JWT_SECRET 값: {}", secret);
-        this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     // ✅ 토큰 생성 (유형별로)
@@ -50,7 +51,7 @@ public class JwtUtil {
                 .claim("tokenType", tokenType.name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + validityInSeconds * 1000))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .signWith(secretKey)
                 .compact();
     }
 
