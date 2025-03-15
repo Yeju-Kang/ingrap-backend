@@ -6,7 +6,6 @@ import com.ingrap.backend.module.userfurniture.dto.UserFurnitureResponse;
 import com.ingrap.backend.module.userfurniture.repository.UserFurnitureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;

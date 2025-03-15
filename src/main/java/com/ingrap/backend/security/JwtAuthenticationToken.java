@@ -5,6 +5,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
+
     private final UserDetails principal;
     private final Claims claims;
 
@@ -27,5 +28,24 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     public Claims getClaims() {
         return claims;
+    }
+
+    // ✅ 토큰의 Subject(주체)를 가져오는 메서드
+    public String getToken() {
+        return claims.getSubject();
+    }
+
+    // ✅ 특정 클레임을 가져오는 메서드
+    public Object getClaim(String key) {
+        return claims.get(key);
+    }
+
+    // ✅ 디버깅을 위한 toString 오버라이드
+    @Override
+    public String toString() {
+        return "JwtAuthenticationToken{" +
+                "principal=" + principal +
+                ", claims=" + claims +
+                '}';
     }
 }

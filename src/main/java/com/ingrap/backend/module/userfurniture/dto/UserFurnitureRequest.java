@@ -1,4 +1,4 @@
-package com.ingrap.backend.module.userfurniture.exception;
+package com.ingrap.backend.module.userfurniture.dto;
 
 import com.ingrap.backend.module.common.domain.FurnitureType;
 import com.ingrap.backend.module.common.domain.FurnitureStatus;
