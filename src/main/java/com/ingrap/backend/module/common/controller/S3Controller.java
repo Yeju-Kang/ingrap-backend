@@ -24,10 +24,24 @@ public class S3Controller {
 
     @GetMapping("/presigned-url")
     public ResponseEntity<Map<String, String>> getPresignedUrl(@RequestParam String fileName) {
+        String contentType;
+
+        if (fileName.endsWith(".png")) {
+            contentType = "image/png";
+        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (fileName.endsWith(".webp")) {
+            contentType = "image/webp";
+        } else if (fileName.endsWith(".svg")) {
+            contentType = "image/svg+xml";
+        } else {
+            contentType = "application/octet-stream"; // 기본값 또는 예외 처리 가능
+        }
+
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileName)
-                .contentType("image/jpeg") // 필요 시 image/png 등 변경
+                .contentType(contentType)
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
