@@ -18,7 +18,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return null; // JWT는 비밀번호 인증을 하지 않음
+        return null;
     }
 
     @Override
@@ -30,17 +30,14 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         return claims;
     }
 
-    // ✅ 토큰의 Subject(주체)를 가져오는 메서드
     public String getToken() {
         return claims.getSubject();
     }
 
-    // ✅ 특정 클레임을 가져오는 메서드
     public Object getClaim(String key) {
         return claims.get(key);
     }
 
-    // ✅ 디버깅을 위한 toString 오버라이드
     @Override
     public String toString() {
         return "JwtAuthenticationToken{" +

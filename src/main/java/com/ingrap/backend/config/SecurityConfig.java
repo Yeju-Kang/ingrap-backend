@@ -27,15 +27,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // ✅ 최신 방식으로 CORS 적용
-                .csrf(csrf -> csrf.disable())  // ✅ CSRF 비활성화 (API 요청 허용)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/signup", "/api/users/login", "/api/users/refresh").permitAll()  // ✅ 회원가입 & 로그인은 인증 없이 허용
-                        .requestMatchers("/api/protected").authenticated()  // ✅ 로그인한 사용자만 접근 가능
-                        .anyRequest().authenticated()  // ✅ 그 외 모든 요청은 인증 필요
+                        .requestMatchers("/api/users/signup", "/api/users/login", "/api/users/refresh").permitAll()
+                        .requestMatchers("/api/protected").authenticated()
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // ✅ 세션 사용 X
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // ✅ JWT 필터 적용
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

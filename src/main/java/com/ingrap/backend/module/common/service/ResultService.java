@@ -15,7 +15,6 @@ public class ResultService {
 
     private final String baseResultDir = "results";
 
-    // ✅ 결과물 파일 로드
     public Resource loadResultFile(String category, String fileId) throws IOException {
         Path filePath = Paths.get(baseResultDir, category, fileId).normalize();
 

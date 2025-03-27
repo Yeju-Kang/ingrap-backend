@@ -20,7 +20,6 @@ public class ResultController {
         this.resultService = resultService;
     }
 
-    // ✅ 공통 결과물 다운로드 API
     @GetMapping("/{category}/{fileId}")
     public ResponseEntity<?> downloadResult(@PathVariable String category, @PathVariable String fileId) {
         try {

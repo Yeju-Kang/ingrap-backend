@@ -44,7 +44,6 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // ✅ 토큰 생성 (유형별로)
     public String generateToken(String subject, TokenType tokenType, long validityInSeconds) {
         return Jwts.builder()
                 .setSubject(subject)
@@ -55,32 +54,26 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ 액세스 토큰 생성
     public String generateAccessToken(String email) {
         return generateToken(email, TokenType.ACCESS, tokenValidityInSeconds);
     }
 
-    // ✅ 리프레시 토큰 생성
     public String generateRefreshToken(String userId) {
         return generateToken(userId, TokenType.REFRESH, refreshTokenValidityInSeconds);
     }
 
-    // ✅ 토큰에서 이메일(주체) 추출
     public String extractEmail(String token) {
         return getClaims(token).getSubject();
     }
 
-    // ✅ 토큰에서 만료 날짜 추출
     public Date getExpirationDate(String token) {
         return getClaims(token).getExpiration();
     }
 
-    // ✅ 토큰이 블랙리스트에 있는지 확인
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokenRepository.existsByToken(token);
     }
 
-    // ✅ 토큰이 리프레시 토큰인지 검증
     public boolean isRefreshToken(String token) {
         try {
             Claims claims = getClaims(token);
@@ -91,7 +84,6 @@ public class JwtUtil {
         }
     }
 
-    // ✅ 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
             getClaims(token);
@@ -110,7 +102,6 @@ public class JwtUtil {
         return false;
     }
 
-    // ✅ Claims 가져오기
     public Claims getClaims(String token) {
         try {
             return Jwts.parserBuilder()

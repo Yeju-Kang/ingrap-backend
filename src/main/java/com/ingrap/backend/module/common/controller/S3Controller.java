@@ -35,7 +35,7 @@ public class S3Controller {
         } else if (fileName.endsWith(".svg")) {
             contentType = "image/svg+xml";
         } else {
-            contentType = "application/octet-stream"; // 기본값 또는 예외 처리 가능
+            contentType = "application/octet-stream";
         }
 
         PutObjectRequest objectRequest = PutObjectRequest.builder()

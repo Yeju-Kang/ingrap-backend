@@ -14,10 +14,7 @@ public enum FurnitureType {
     FurnitureType(String description) {
         this.description = description;
     }
-
-    /**
-     * 한글 설명을 가져옵니다.
-     */
+    
     public String getDescription() {
         return description;
     }

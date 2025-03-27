@@ -12,11 +12,11 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")  // ✅ 모든 엔드포인트 CORS 허용
-                        .allowedOrigins("http://localhost:3000")  // ✅ 프론트엔드 URL 허용
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // ✅ 허용할 HTTP 메서드
-                        .allowedHeaders("*")  // ✅ 모든 헤더 허용
-                        .allowCredentials(true);  // ✅ 인증 정보 포함 허용 (JWT 토큰 등)
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:3000")
+                        .allowedHeaders("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowCredentials(true);
             }
         };
     }
