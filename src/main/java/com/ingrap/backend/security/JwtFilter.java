@@ -70,7 +70,9 @@ public class JwtFilter extends OncePerRequestFilter {
             Claims claims = jwtUtil.getClaims(token);
             logger.info("토큰에서 추출한 이메일: {}" + email);
 
-            UserDetails userDetails = User.withUsername(email).password("").roles("USER").build();
+            Long userId = jwtUtil.extractUserId(token); // 토큰에서 사용자 ID 추출
+
+            CustomUserDetails userDetails = new CustomUserDetails(userId, email);
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(userDetails, claims);
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

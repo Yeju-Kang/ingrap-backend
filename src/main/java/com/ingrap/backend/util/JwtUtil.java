@@ -114,4 +114,9 @@ public class JwtUtil {
             throw new RuntimeException("Invalid JWT Token", e);
         }
     }
+
+    public Long extractUserId(String token) {
+        Claims claims = getClaims(token);
+        return Long.parseLong(claims.get("userId").toString());
+    }
 }
