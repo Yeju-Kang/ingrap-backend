@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    private final long refreshTokenValidityInSeconds = 14 * 24 * 60 * 60; // 리프레시 토큰 유효기간 (14일)
+    private final long refreshTokenValidityInSeconds = 14 * 24 * 60 * 60;
 
     // ✅ 회원가입
     public User signupUser(String username, String email, String password) {
@@ -43,7 +42,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // ✅ 로그인 (액세스 토큰 & 리프레시 토큰 발급)
+    // ✅ 로그인
     public Map<String, String> loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 잘못되었습니다."));
@@ -52,10 +51,10 @@ public class UserService {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 잘못되었습니다.");
         }
 
-        String accessToken = jwtUtil.generateAccessToken(user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        // ✅ 수정된 부분
+        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
-        // ✅ 리프레시 토큰 저장 (있으면 갱신, 없으면 새로 저장)
         refreshTokenRepository.findByUserId(user.getId())
                 .ifPresentOrElse(
                         existingToken -> {
@@ -65,7 +64,7 @@ public class UserService {
                         },
                         () -> {
                             RefreshToken newToken = RefreshToken.builder()
-                                    .userId(user.getId())  // ✅ Long 타입으로 통일
+                                    .userId(user.getId())
                                     .token(refreshToken)
                                     .expiredAt(LocalDateTime.now().plusSeconds(refreshTokenValidityInSeconds))
                                     .build();
@@ -79,9 +78,8 @@ public class UserService {
         );
     }
 
-    // ✅ 리프레시 토큰으로 액세스 토큰 재발급
+    // ✅ 리프레시 토큰 → 새 액세스 토큰 발급
     public String refreshAccessToken(String refreshToken) {
-        // 리프레시 토큰인지 검증
         if (!isRefreshToken(refreshToken)) {
             throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
         }
@@ -93,22 +91,22 @@ public class UserService {
             throw new RuntimeException("Refresh Token Expired");
         }
 
-        // ✅ Long 타입 userId로 generateAccessToken 호출
-        return jwtUtil.generateAccessToken(token.getUserId().toString());
+        // ✅ userId로 사용자 조회하여 email도 가져옴
+        User user = userRepository.findById(token.getUserId())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return jwtUtil.generateAccessToken(user.getId(), user.getEmail());
     }
 
-    // ✅ 로그아웃 처리 (리프레시 토큰 삭제 + 액세스 토큰 블랙리스트 등록)
+    // ✅ 로그아웃
     public void logoutUser(String accessToken, String refreshToken) {
-        // ✅ expiredAt을 자동으로 계산
         LocalDateTime expiredAt = jwtUtil.getExpirationDate(accessToken).toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
 
-        // ✅ 리프레시 토큰 삭제
         refreshTokenRepository.findByToken(refreshToken)
                 .ifPresent(refreshTokenRepository::delete);
 
-        // ✅ 액세스 토큰을 블랙리스트에 등록
         if (!blacklistedTokenRepository.existsByToken(accessToken)) {
             BlacklistedToken blacklistedToken = BlacklistedToken.builder()
                     .token(accessToken)
@@ -119,12 +117,10 @@ public class UserService {
         }
     }
 
-    // ✅ 블랙리스트 확인
     public boolean isTokenBlacklisted(String token) {
         return blacklistedTokenRepository.existsByToken(token);
     }
 
-    // ✅ 리프레시 토큰인지 검증
     public boolean isRefreshToken(String token) {
         return jwtUtil.isRefreshToken(token);
     }

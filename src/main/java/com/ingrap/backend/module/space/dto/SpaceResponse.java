@@ -14,4 +14,5 @@ public class SpaceResponse {
     private String name;
     private String thumbnailUrl;
     private String createdAt;
+    private String updatedAt;
 }

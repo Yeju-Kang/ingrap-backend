@@ -44,6 +44,7 @@ public class JwtUtil {
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // ✅ 기본 generateToken (userId 없음)
     public String generateToken(String subject, TokenType tokenType, long validityInSeconds) {
         return Jwts.builder()
                 .setSubject(subject)
@@ -54,10 +55,24 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateAccessToken(String email) {
-        return generateToken(email, TokenType.ACCESS, tokenValidityInSeconds);
+    // ✅ userId를 포함하는 generateToken 오버로드
+    public String generateToken(Long userId, String email, TokenType tokenType, long validityInSeconds) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("userId", userId)
+                .claim("tokenType", tokenType.name())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + validityInSeconds * 1000))
+                .signWith(secretKey)
+                .compact();
     }
 
+    // ✅ 로그인 시 사용하는 액세스 토큰 생성
+    public String generateAccessToken(Long userId, String email) {
+        return generateToken(userId, email, TokenType.ACCESS, tokenValidityInSeconds);
+    }
+
+    // ✅ 리프레시 토큰은 여전히 userId만 subject로 사용
     public String generateRefreshToken(String userId) {
         return generateToken(userId, TokenType.REFRESH, refreshTokenValidityInSeconds);
     }
@@ -117,6 +132,12 @@ public class JwtUtil {
 
     public Long extractUserId(String token) {
         Claims claims = getClaims(token);
-        return Long.parseLong(claims.get("userId").toString());
+        Object userIdObj = claims.get("userId");
+
+        if (userIdObj == null) {
+            throw new JwtException("userId 클레임이 토큰에 없습니다.");
+        }
+
+        return Long.valueOf(userIdObj.toString());
     }
 }

@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/signup", "/api/users/login", "/api/users/refresh").permitAll()
+                        .requestMatchers("/api/spaces/guest", "/api/uploadlink").permitAll() // ✅ 추가!
                         .requestMatchers("/api/protected").authenticated()
                         .anyRequest().authenticated()
                 )

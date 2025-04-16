@@ -13,8 +13,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Space {
+
     @Id @GeneratedValue
     private Long id;
+
+    @Column(nullable = false, unique = true, updatable = false)
+    private String uuid;
 
     private String name;
 
@@ -23,4 +27,18 @@ public class Space {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void generateFields() {
+        if (this.uuid == null) {
+            this.uuid = UUID.randomUUID().toString();
+        }
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void updateTimestamp() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

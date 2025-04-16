@@ -10,8 +10,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -33,10 +31,10 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestPath = request.getRequestURI();
-        logger.info("요청된 경로: {}" + requestPath);
+        logger.info("요청된 경로: {}" + requestPath); // ✅ 수정
 
         if (isExcludedPath(requestPath)) {
-            logger.info("예외 엔드포인트, 필터 통과: {}" + requestPath);
+            logger.info("예외 엔드포인트, 필터 통과: {}" + requestPath); // ✅ 수정
             chain.doFilter(request, response);
             return;
         }
@@ -44,11 +42,11 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
         if (!StringUtils.hasText(token)) {
             logger.warn("Authorization 헤더와 access_token 쿠키가 없습니다.");
-            chain.doFilter(request, response); // 또는 return 으로 막을 수도 있음
+            chain.doFilter(request, response);
             return;
         }
 
-        logger.info("검사할 토큰: {}" + token);
+        logger.info("검사할 토큰: {}" + token); // ✅ 수정
 
         try {
             if (jwtUtil.isTokenBlacklisted(token)) {
@@ -68,24 +66,26 @@ public class JwtFilter extends OncePerRequestFilter {
 
             String email = jwtUtil.extractEmail(token);
             Claims claims = jwtUtil.getClaims(token);
-            logger.info("토큰에서 추출한 이메일: {}" + email);
+            logger.info("토큰에서 추출한 이메일: {}" + email); // ✅ 수정
 
-            Long userId = jwtUtil.extractUserId(token); // 토큰에서 사용자 ID 추출
-
+            Long userId = jwtUtil.extractUserId(token);
             CustomUserDetails userDetails = new CustomUserDetails(userId, email);
             JwtAuthenticationToken authToken = new JwtAuthenticationToken(userDetails, claims);
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            logger.info("인증 완료: {}" + email);
+            logger.info("인증 완료: {}" + email); // ✅ 수정
 
         } catch (ExpiredJwtException e) {
+            logger.error("토큰 만료", e); // ✅ 추가
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "토큰이 만료되었습니다.");
             return;
         } catch (JwtException e) {
+            logger.error("잘못된 JWT 토큰", e); // ✅ 추가
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "잘못된 JWT 토큰입니다.");
             return;
         } catch (Exception e) {
+            logger.error("서버 오류", e); // ✅ 추가
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
             return;
         }
@@ -93,11 +93,12 @@ public class JwtFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-
     private boolean isExcludedPath(String path) {
         return path.startsWith("/api/users/signup") ||
                 path.startsWith("/api/users/login") ||
-                path.startsWith("/api/users/refresh");  // 리프레시 엔드포인트도 예외 처리
+                path.startsWith("/api/users/refresh") ||
+                path.startsWith("/api/spaces/guest") ||       // ✅ 게스트 공간 생성 허용
+                path.startsWith("/api/uploadlink");           // ✅ 게스트 업로드 링크 허용
     }
 
     private String resolveToken(HttpServletRequest request) {
@@ -116,5 +117,4 @@ public class JwtFilter extends OncePerRequestFilter {
 
         return null;
     }
-
 }
