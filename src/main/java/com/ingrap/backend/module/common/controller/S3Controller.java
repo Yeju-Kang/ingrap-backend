@@ -34,6 +34,8 @@ public class S3Controller {
             contentType = "image/webp";
         } else if (fileName.endsWith(".svg")) {
             contentType = "image/svg+xml";
+        } else if (fileName.endsWith(".glb")) {
+            contentType = "model/gltf-binary"; // ✅ glb 지원 추가
         } else {
             contentType = "application/octet-stream";
         }
