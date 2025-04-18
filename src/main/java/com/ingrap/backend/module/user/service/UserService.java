@@ -1,5 +1,6 @@
 package com.ingrap.backend.module.user.service;
 
+import com.ingrap.backend.module.user.domain.UserType;
 import com.ingrap.backend.module.user.entity.BlacklistedToken;
 import com.ingrap.backend.module.user.entity.RefreshToken;
 import com.ingrap.backend.module.user.entity.User;
@@ -28,15 +29,20 @@ public class UserService {
     private final long refreshTokenValidityInSeconds = 14 * 24 * 60 * 60;
 
     // ✅ 회원가입
-    public User signupUser(String username, String email, String password) {
+    public User signupUser(String username, String email, String password, UserType userType) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("이미 존재하는 이메일입니다.");
+        }
+
+        if (userType == null) {
+            userType = UserType.INDIVIDUAL;
         }
 
         User user = User.builder()
                 .username(username)
                 .email(email)
                 .password(passwordEncoder.encode(password))
+                .userType(userType)
                 .build();
 
         return userRepository.save(user);
@@ -51,7 +57,6 @@ public class UserService {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 잘못되었습니다.");
         }
 
-        // ✅ 수정된 부분
         String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(String.valueOf(user.getId()));
 
@@ -74,7 +79,8 @@ public class UserService {
 
         return Map.of(
                 "accessToken", accessToken,
-                "refreshToken", refreshToken
+                "refreshToken", refreshToken,
+                "userType", user.getUserType().name()
         );
     }
 
@@ -91,7 +97,6 @@ public class UserService {
             throw new RuntimeException("Refresh Token Expired");
         }
 
-        // ✅ userId로 사용자 조회하여 email도 가져옴
         User user = userRepository.findById(token.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 

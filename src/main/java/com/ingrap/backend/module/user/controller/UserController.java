@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.ingrap.backend.module.user.dto.UserSignupRequest;
+import jakarta.validation.Valid;
+
 
 import java.util.Map;
 
@@ -23,19 +26,23 @@ public class UserController {
      * ✅ 회원가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<?> signupUser(@RequestBody Map<String, String> userRequest) {
+    public ResponseEntity<?> signupUser(@RequestBody @Valid UserSignupRequest request) {
         try {
-            String username = userRequest.get("username");
-            String email = userRequest.get("email");
-            String password = userRequest.get("password");
+            User user = userService.signupUser(
+                    request.getUsername(),
+                    request.getEmail(),
+                    request.getPassword(),
+                    request.getUserType() // null일 경우 service에서 INDIVIDUAL 처리
+            );
 
-            User user = userService.signupUser(username, email, password);
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "회원가입 실패", "message", e.getMessage()));
         }
     }
+
 
     /**
      * ✅ 로그인 (액세스 토큰 & 리프레시 토큰 발급)

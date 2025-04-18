@@ -1,5 +1,6 @@
 package com.ingrap.backend.module.user.entity;
 
+import com.ingrap.backend.module.user.domain.UserType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,4 +23,15 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserType userType;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.userType == null) {
+            this.userType = UserType.INDIVIDUAL;
+        }
+    }
 }
