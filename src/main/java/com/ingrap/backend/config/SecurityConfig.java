@@ -27,28 +27,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .cors().configurationSource(corsConfigurationSource())
+                .and()
+                .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/signup", "/api/users/login", "/api/users/refresh").permitAll()
-                        .requestMatchers("/api/spaces/guest", "/api/uploadlink").permitAll() // ✅ 추가!
-                        .requestMatchers("/api/protected").authenticated()
+                        .requestMatchers(
+                                "/api/users/signup",
+                                "/api/users/login",
+                                "/api/users/refresh",
+                                "/api/spaces/guest",
+                                "/api/uploadlink"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // ✅ CORS 설정 추가
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // ✅ 허용할 Origin
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // ✅ 허용할 HTTP 메서드
-        configuration.setAllowedHeaders(List.of("*")); // ✅ 모든 헤더 허용
-        configuration.setAllowCredentials(true); // ✅ 쿠키 및 인증 정보 허용
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -57,7 +63,7 @@ public class SecurityConfig {
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // ✅ 비밀번호 암호화
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
