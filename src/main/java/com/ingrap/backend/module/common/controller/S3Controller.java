@@ -48,11 +48,17 @@ public class S3Controller {
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
                 .putObjectRequest(objectRequest)
-                .signatureDuration(Duration.ofMinutes(5))
+                .signatureDuration(Duration.ofMinutes(30))
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 
-        return ResponseEntity.ok(Map.of("url", presignedRequest.url().toString()));
+        System.out.println("📦 contentType = " + contentType);
+        System.out.println("🧾 presigned URL = " + presignedRequest.url());
+
+        return ResponseEntity.ok(Map.of(
+                "url", presignedRequest.url().toString(),
+                "headers", presignedRequest.signedHeaders().toString() // 🔍 디버깅용
+        ));
     }
 }
