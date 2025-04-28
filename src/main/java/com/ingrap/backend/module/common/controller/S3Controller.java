@@ -53,7 +53,7 @@ public class S3Controller {
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 
-        System.out.println("📦 contentType = " + contentType);
+        System.out.println("📦 presignedRequest.signedHeaders() = " + presignedRequest.signedHeaders());
         System.out.println("🧾 presigned URL = " + presignedRequest.url());
 
         return ResponseEntity.ok(Map.of(
